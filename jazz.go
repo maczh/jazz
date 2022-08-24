@@ -6,6 +6,12 @@ import (
 	"io"
 )
 
+const (
+	MESSAGE_TTL      = "x-message-ttl"
+	DEAD_EXCHANGE    = "x-dead-letter-exchange"
+	DEAD_ROUTING_KEY = "x-dead-letter-routing-key"
+)
+
 // Connection is a struct which holds all necessary data for RabbitMQ connection
 type Connection struct {
 	c *amqp.Connection
@@ -59,7 +65,7 @@ func (c *Connection) CreateScheme(s Settings) error {
 
 	// Create queues according to settings
 	for name, q := range s.Queues {
-		_, err := ch.QueueDeclarePassive(name, q.Durable, q.Autodelete, q.Exclusive, q.Nowait, nil)
+		_, err := ch.QueueDeclarePassive(name, q.Durable, q.Autodelete, q.Exclusive, q.Nowait, q.Args)
 		if err == nil {
 			continue
 		}
@@ -69,7 +75,7 @@ func (c *Connection) CreateScheme(s Settings) error {
 			return err
 		}
 
-		_, err = ch.QueueDeclare(name, q.Durable, q.Autodelete, q.Exclusive, q.Nowait, nil)
+		_, err = ch.QueueDeclare(name, q.Durable, q.Autodelete, q.Exclusive, q.Nowait, q.Args)
 		if err != nil {
 			return err
 		}
@@ -182,4 +188,12 @@ func (c *Connection) ProcessQueue(name string, f func([]byte)) error {
 		f(d.Body)
 	}
 	return nil
+}
+
+func DeadLetterArgs(ttl int, exchange, toQueue string) amqp.Table {
+	return amqp.Table{
+		MESSAGE_TTL:      ttl,
+		DEAD_EXCHANGE:    exchange,
+		DEAD_ROUTING_KEY: toQueue,
+	}
 }

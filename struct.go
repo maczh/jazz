@@ -1,5 +1,7 @@
 package jazz
 
+import "github.com/streadway/amqp"
+
 // Exchange is structure with specification of properties of RabbitMQ exchange
 type Exchange struct {
 	Durable    bool      `yaml:"durable"`
@@ -19,11 +21,12 @@ type Binding struct {
 
 // QueueSpec is a specification of properties of RabbitMQ queue
 type QueueSpec struct {
-	Durable    bool      `yaml:"durable"`
-	Autodelete bool      `yaml:"autodelete"`
-	Nowait     bool      `yaml:"nowait"`
-	Exclusive  bool      `yaml:"exclusive"`
-	Bindings   []Binding `yaml:"bindings"`
+	Durable    bool       `yaml:"durable"`
+	Autodelete bool       `yaml:"autodelete"`
+	Nowait     bool       `yaml:"nowait"`
+	Exclusive  bool       `yaml:"exclusive"`
+	Bindings   []Binding  `yaml:"bindings"`
+	Args       amqp.Table `yaml:"args"`
 }
 
 // Settings is a specification of all queues and exchanges together with all bindings.
