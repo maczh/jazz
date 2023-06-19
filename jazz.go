@@ -1,6 +1,7 @@
 package jazz
 
 import (
+	"crypto/tls"
 	"github.com/streadway/amqp"
 	"gopkg.in/yaml.v2"
 	"io"
@@ -134,6 +135,18 @@ func (c *Connection) DeleteScheme(s Settings) error {
 // Close closes connection to RabbitMQ
 func (c *Connection) Close() error {
 	return c.c.Close()
+}
+
+func (c *Connection) IsClosed() bool {
+	return c.c.IsClosed()
+}
+
+func (c *Connection) GetAmqpConnection() *amqp.Connection {
+	return c.c
+}
+
+func (c *Connection) ConnectionState() tls.ConnectionState {
+	return c.c.ConnectionState()
 }
 
 // SendMessage publishes plain text message to an exchange with specific routing key
